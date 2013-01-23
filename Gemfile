@@ -5,3 +5,5 @@ gem "sinatra"
 gem "jtv-apns"
 gem "thin"
 gem "rerun"
+
+gem "mongo"
