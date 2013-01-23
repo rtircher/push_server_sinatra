@@ -1,6 +1,8 @@
 require 'sinatra'
 require 'apns'
 
+@@users = {}
+
 ###################
 # Hosts Config
 ###################
@@ -43,17 +45,35 @@ APNS.pem  = 'tools/development.pem'
 # (default: false)
 # APNS.cache_connections = true
 
-get '/notification' do
-  device_token = 'bab40d7ddab5a6fca09eb2ab13fc5cd046da9064c4174f7e62c45477fd3a4656'
+get '/users/:id/notify' do |user_id|
+  return "User #{user_id} not found" unless users[user_id]
 
-  # Single notification
-  APNS.send_notification(device_token, 'Notification 1: Hello iPhone!')
-  APNS.send_notification(device_token, :aps => {:alert => 'Notification 2: Hello iPhone!', :badge => 1, :sound => 'default'})
+  device_token = users[user_id][:token]
 
-  # multiple notifications at once
-  n1 = [device_token, :aps => { :alert => 'Hello...', :badge => 1, :sound => 'default' }]
-  n2 = [device_token, :aps => { :alert => '... iPhone!', :badge => 1, :sound => 'default' }]
-  APNS.send_notifications([n1, n2])
+  if device_token
+    # Single notification
+    APNS.send_notification(device_token, "Hello iPhone with token #{device_token}")
+    # APNS.send_notification(device_token, :aps => {:alert => 'Notification 2: Hello iPhone!', :badge => 1, :sound => 'default'})
 
-  "Notifications Sent"
+    # multiple notifications at once
+    # n1 = [device_token, :aps => { :alert => 'Hello...', :badge => 1, :sound => 'default' }]
+    # n2 = [device_token, :aps => { :alert => '... iPhone!', :badge => 1, :sound => 'default' }]
+    # APNS.send_notifications([n1, n2])
+
+    "Notifications Sent"
+  else
+    "No device token found for user #{users[user_id]}"
+  end
+end
+
+post '/users/:id/registerDevice' do |user_id|
+  users[user_id] = { :token => params[:token] } # need to have a set of token and add token ids when requested
+
+  status(200)
+end
+
+private
+
+def users
+  @@users
 end
