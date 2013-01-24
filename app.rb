@@ -25,7 +25,9 @@ include Mongo
 # Feedback Service:
 #
 # (default: feedback.sandbox.push.apple.com)
-APNS.feedback_host = 'feedback.push.apple.com'
+# APNS.feedback_host = 'feedback.push.apple.com'
+# (development: feedback.sandbox.push.apple.com)
+APNS.feedback_host = 'feedback.sandbox.push.apple.com'
 
 # (default: 2196)
 # APNS.feedback_port = 2196
@@ -55,7 +57,7 @@ get '/users/:id/notifications' do |user_id|
   user = @@tokens.find_one( "user_id" => user_id )
   return "User #{user_id} not found" unless user
 
-  device_token = user["tokens"]
+  device_token = user["token"]
 
   if device_token
     # Single notification
@@ -75,9 +77,21 @@ end
 
 post '/users/:id/devices' do |user_id|
   @@tokens.remove({ "user_id" => user_id })
-  @@tokens.insert({ "user_id" => user_id, "tokens" => params[:token] }) # need to have a set of token and add token ids when requested
+  @@tokens.insert({ "user_id" => user_id, "token" => params[:token] }) # need to have a set of token and add token ids when requested
 
-  @@tokens.find.each { |tokens| p tokens }
+  @@tokens.find.each { |token| p token }
 
   status(200)
+end
+
+get '/feedback' do
+  # APNS.feedback_each returns an array of Hash objects with the following keys
+  # :feedback_on => (Time) Time Apple considers app unregistered from device
+  # :length => (Fixnum) Length of :device_token, currently always 32 (bytes)
+  # :device_token => (String) hex-encoded device token
+  p "Feedback check begin"
+  APNS.feedback.each do |feedback|
+    @@tokens.remove({ "token" => feedback.device_token })
+  end
+  p "Feedback check end"
 end
