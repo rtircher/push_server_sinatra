@@ -13,3 +13,5 @@ gem "clockwork"
 gem "sidekiq"
 
 gem 'rb-fsevent', '~> 0.9.1'
+
+gem 'foreman'
