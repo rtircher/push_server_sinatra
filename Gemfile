@@ -8,3 +8,8 @@ gem "rerun"
 
 gem "mongo"
 gem "bson_ext"
+
+gem "clockwork"
+gem "sidekiq"
+
+gem 'rb-fsevent', '~> 0.9.1'

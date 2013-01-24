@@ -71,7 +71,7 @@ get '/users/:id/notifications' do |user_id|
 
     "Notifications Sent"
   else
-    "No device token found for user #{users[user_id]}"
+    "No device token found for user #{user_id}"
   end
 end
 
