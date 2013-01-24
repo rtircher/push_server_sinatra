@@ -7,3 +7,4 @@ gem "thin"
 gem "rerun"
 
 gem "mongo"
+gem "bson_ext"
